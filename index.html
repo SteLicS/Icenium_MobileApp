@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title></title>
+        <meta charset="utf-8" />
+        <link href="kendo/styles/kendo.mobile.all.min.css" rel="stylesheet" />
+        <link href="styles/main.css" rel="stylesheet" />
+
+        <script src="cordova.js" type="text/javascript"></script>
+        <script src="scripts/fileHelper.js"></script>
+        <script data-main="scripts/main.js" src="scripts/lib/require.js"></script>
+        <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=true"></script>
+
+        <script src="PayPalMobilePG.js"></script>
+    </head>
+    <body>
+        
+        <!--Home-->
+        <div id="tabstrip-home" data-role="view"  data-title="Icenium_MobileApp">
+            <div data-role="content" class="view-content">
+                <a id="skin-change" data-role="button" data-click="app.changeSkin">Flat</a>
+                App di testing per eCommerce.<br/><br/>
+                    <ul id="home_link" data-role="listview"  >
+                        <li><a href="#tabstrip-cat" data-icon="search">
+                            <span  data-localized-text="categories">Categories/subcategories</span>
+                            <p class="item-info" data-localized-text="categories_desc">Esempio lista gerarchica a 3 livelli</p>
+                            </a></li>
+                        <li><a href="#tabstrip-products-list" data-icon="featured">
+                            	<span  data-localized-text="products" >Prodotti/Dettaglio/Acquisto</span>
+	                            <p class="item-info" data-localized-text="products_desc">Elenco prodotti con visualizzazione dettaglio e possiiblità di acquisto. <br/>In base alla connettività visualizzo dei dati salvati in locale</p>
+                            </a></li>
+                        <li><a href="#tabstrip-cart" data-icon="cart"> <span data-localized-text="cart">Carrello Prodotti</span>
+                            <p class="item-info" data-localized-text="cart_desc" >Elenco prodotti a carrello.</p></a></li>
+                        <li><a href="#tabstrip-more" data-icon="more"> <span data-localized-text="others">Altri elementi</span>
+                            <p class="item-info" data-localized-text="others_desc">Elenco altre funzionalità sviluppate o da completare.</p></a></li>
+                    <li><a href="#tabstrip-filemanager" data-icon="more"> <span data-localized-text="filemanager">File Manager</span>
+                            <p class="item-info" data-localized-text="filemanger_desc">Gestione Files: gestione salvataggio files e download pdf</p></a></li>
+                    <li><a href="#tabstrip-paypal" data-icon="more"> <span >PayPal Test View</span>
+                            <p class="item-info" >Gestione PayPal Plugin</p></a></li>
+                    </ul>
+            </div>
+        </div>
+
+        
+        <!-- Elenco categorie e sottocategorie -->
+        <div id="tabstrip-cat" 
+             data-role="view"  data-show="app.views.cat.refreshListView"  data-transition="slide" data-init="app.views.cat.init" >
+                <header data-role="header">    
+                    <div data-role="navbar" id="cat-navbar">
+                        <a id="cat-back" data-role="backbutton" data-align="left">Back</a>
+                        <span data-role="view-title"></span>
+                    </div>
+                </header>
+                <div data-role="content" class="view-content">
+                    <ul id="cat-listview" data-role="listview"  data-template="tabstrip-cat-template" ></ul>
+                </div>
+        </div>
+        <script id="tabstrip-cat-template" type="text/x-kendo-template">
+             # if (data.hasSubCategories) { #
+                <a href="\#tabstrip-cat?catId=#: data.catId #&parentcatId=#: data.parentcatId #" class="parent">
+                    <h4> #: catTitle # </h4>
+                         parentid: #: data.parentcatId # - catid:#: data.catId #
+                </a>
+            # } else { #
+                <h4 class="nochild"> #: catTitle # </h4>
+            # } #
+            
+        </script>
+       
+        <!--Login-->
+        <div id="tabstrip-login" data-role="view" data-title="Login" 
+             data-model="app.views.login.viewModel" data-init="app.views.login.init"
+            >
+
+            <div data-role="content" class="view-content">
+                <div class="logo"></div>
+                <h3 data-bind="invisible: isLoggedIn">Inserisci le tue credenziali:</h3>
+                <h1 class="welcome" data-bind="visible: isLoggedIn">
+                    Benvenuto, <span data-bind="text: username"></span>!
+                </h1>
+                <ul data-role="listview" data-style="inset" data-bind="invisible: isLoggedIn">
+                    <li>
+                        <label>
+                            Username
+                            <input type="text" data-bind="value: username"/>
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            Password
+                            <input type="password" data-bind="value: password" />
+                        </label>
+                    </li>
+                </ul>
+                <div class="buttonArea">
+                    <a id="login" data-role="button" data-bind="click: onLogin, invisible: isLoggedIn" class="login-button">Login</a>
+                    <a id="logout" data-role="button" data-bind="click: onLogout, visible: isLoggedIn" class="login-button">Logout</a>
+                </div>
+            </div>
+
+        </div>
+
+        <!--Location-->
+        <div id="tabstrip-location" data-stretch="true" data-role="view"  data-title="Location" 
+             data-init="app.views.location.init" data-show="app.views.location.show" 
+             data-hide="app.views.location.hide" data-model="app.views.location.viewModel" >
+            <div data-role="content">
+                <div id="map-search-wrap">
+                    <a id="map-navigate-home" data-role="button" data-click="app.views.location.navigateHome"></a>
+                    <form onsubmit="return false;">
+                        <input id="map-address" type="search" data-bind="value: address" placeholder="Address"/>
+                        <a id="map-search" data-role="button" data-click="app.views.location.searchAddress" ></a>
+                    </form>
+                </div>
+                <div id="map-canvas"></div>
+            </div>
+        </div>
+        
+        <!-- Shopping Cart -->
+        <div id="tabstrip-cart" data-role="view"  data-title="Your Shopping Cart" 
+            data-show="app.views.cart.refreshListView"  data-init="app.views.cart.init" >
+            <div data-role="content" class="weather">
+                <div data-role="scroller">
+                    <div class="separator">
+                        <div class="dark"></div>
+                        <div class="light"></div>
+                    </div>
+                    
+                    <ul id="cart-list" class="forecast-list" data-role="listview" >
+                    </ul>
+                    <div class="buttonArea">
+                        Totale prodotti: <label id="itemscount" ></label>
+                    <br/>
+                        Totale carrello: € <label id="carttotal" ></label>
+                    </div>
+                    <div class="buttonArea">
+                        <a href="#tabstrip-checkout" data-role="button" class="login-button" >Checkout</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!--Cart list template-->
+        <script type="text/x-kendo-tmpl" id="cart-list-template">
+            <div>
+                <div class="position-center">
+                    <span class="cart-info">#: item_name #</span><br/>
+                    <span class="cart-info">€ #: item_price #</span><br/>
+                    <span class="cart-info">(id item sqlite #: id #)</span>
+                </div>
+                <div class="position-right">
+                    <a id="addButton" data-role="button" data-click="app.views.cart.removeCartItem" data-id="#: id #" data-icon="trash" ></a>
+                </div>
+            </div>
+        </script>
+         
+        <!--Checkout-->   
+        <div id="tabstrip-checkout" data-role="view"  data-title="Checkout" data-show="app.views.cart.showCheckout" >
+            <div data-role="content" class="view-content">
+                <ul data-role="listview" data-style="inset" >
+                    <li>
+                        <label>Nome<input type="text" id="name"/></label>
+                    </li>
+                    <li>
+                        <label>Cognome<input type="text" id="surname" /></label>
+                    </li>
+                    <li>
+                        <label>Indirizzo<input type="text" id="address" /></label>
+                    </li>
+                    <li>
+                        <label>Pagamento
+                            <select id="paymenttype">
+                                <option value="1">Paypal</option>
+                                <option value="2">Bonifico</option>
+                                <option value="3">Carta di credito</option>
+                                <option value="4">Contrassegno</option>
+                            </select>
+                        </label>
+                    </li>
+                </ul>
+                <div class="buttonArea">
+                    <a id="confirm" data-role="button" data-click="app.views.cart.checkout" class="login-button">Conferma Ordine</a> 
+                </div>
+            </div>
+        </div>
+        
+        <!-- Thanks page -->
+        <div id="tabstrip-thanks" data-role="view"  data-title="Thanks" >
+            <div data-role="content" class="view-content">
+                <span id="checkout_message"></span>
+                
+            </div>
+        </div>
+<!-- Ricerca prodotti-->
+        
+        <script>
+            function searchListShow(){
+                $('#products-listview').show();
+            }
+        </script>
+        <div id="tabstrip-search" data-role="view"  data-title="Prodotti" data-show="app.views.products.refreshListView"  data-init="app.views.products.init" >
+            <header data-role="header">    
+                <div data-role="navbar" id="products-list-navbar">
+                    <span data-role="view-title"></span>
+                </div>
+            </header>
+            <div data-role="content" >
+                <div style="clear:both">
+                    <form onsubmit="return false;">
+                        <input id="map-address" style="margin-left:5px;" type="search" data-bind="value: product" placeholder="Ricerca"/>
+                        <a id="map-search" data-role="button" data-click="searchListShow" ></a>
+                    </form>
+                </div>
+                <div  style="clear:both">
+                    <ul id="products-listview" style="display:none" class="products-view" data-role="listview" data-template="tabstrip-products-list-template" >                </ul>
+                </div>
+                    
+            </div>
+        </div>
+        
+        
+        <!-- Product List -->
+        <div id="tabstrip-products-list" data-role="view"  data-title="Prodotti" data-show="app.views.products.refreshListView"  data-init="app.views.products.init" >
+            <header data-role="header">    
+                <div data-role="navbar" id="products-list-navbar">
+                    <span data-role="view-title"></span>
+                </div>
+            </header>
+            <div data-role="content" class="view-content">
+                <ul id="products-listview" class="products-view" data-role="listview" data-template="tabstrip-products-list-template" >
+                </ul>
+            </div>
+        </div>
+
+        <!-- Product List template -->
+        <script id="tabstrip-products-list-template" type="text/x-kendo-template">
+            <img src="${app.BaseUrl}#: productImage # " />
+            <div>
+                #: productTitle #         
+                <a href="\#product-detail?uid=#: uid#&productId=#: productId #" data-role="detailbutton"  data-style="detaildisclose"></a><br/>
+                Prezzo: € #: productPrice # <br/>
+            </div>
+
+        </script>
+        
+        <!-- Product Detail -->
+        <div id="product-detail"   data-role="view" data-title="Dettaglio"  data-show="app.views.products.detailShow" >
+            <header data-role="header">    
+                <div data-role="navbar" id="products-detail-navbar">
+                    <a id="product-back" data-role="backbutton" data-align="left">Back</a>
+                    <span data-role="view-title"></span>
+                </div>
+            </header>
+            <div id="product" data-role="content" class="products-view"  >
+                <input id="productHidden" type="hidden" data-bind="value: productTitle" />
+                <input id="productpriceHidden" type="hidden" data-bind="value: productPrice" />
+                <img  data-bind="attr: { src: imageSource, alt: imageAlt }" />
+                <div>
+                    <h3 data-bind="text: productTitle"></h3>
+                    <span data-bind="text: productDescription"></span><br/>
+                    Colori Disponibili: <ul id="product-color-listview" data-role="listview" data-bind="source: productColorsList" data-template="tabstrip-products-color-list-template"  ></ul><br/>
+                    <div class="product-price">
+                        Prezzo: € <span data-bind="text: productPriceLocal"></span><br/>
+                        Disponibile dal <span data-bind="text: productAvailabilityLocal"></span><br/>
+                    </div>   
+                    <a id="addButton" data-role="button" data-click="app.views.cart.addCartItem" data-icon="add" class="largerButton">Acquista</a>
+                </div>
+            </div>
+        </div>
+        <!-- Product Detail template -->
+        <script id="tabstrip-products-color-list-template" type="text/x-kendo-template"> 
+            <div class="product-color" data-bind="style: {background-color:color}" ></div>
+        </script>
+        
+        
+        
+        
+        <!-- More View -->
+        <div data-role="view" id="tabstrip-more" data-title="Altri Elementi">
+            <header data-role="header">    
+                <div data-role="navbar" id="news-navbar">
+                        <a id="current-culture" data-role="button"  data-align="left" data-click="app.changeCulture" style="display:none;" ></a>
+                    <span data-role="view-title"></span>
+                </div>
+            </header>
+
+            <div data-role="content" class="view-content">               
+                Altri elementi sviluppati
+                <ul data-role="listview" >
+                    <li><a href="#tabstrip-login" data-icon="contacts" >Login</a></li>
+                    <li><a href="#tabstrip-location" data-icon="globe" >Location</a></li>
+                    <li><a href="#tabstrip-search" data-icon="search" >Ricerca Prodotti</a></li>
+            	</ul>
+            </div>
+        </div>
+        
+		<!-- File Manager List -->
+        <div data-role="view" id="tabstrip-filemanager" data-title="Gestione Files">
+            <header data-role="header">    
+                <div data-role="navbar" id="news-navbar">
+                    <span data-role="view-title"></span>
+                </div>
+            </header>
+             <div data-role="content" class="view-content">               
+                    <ul data-role="listview" >
+                        <li><a href="#tabstrip-fm" >Gestione File</a></li>
+                        <li><a href="#tabstrip-pdf" >Download pdf</a></li>
+                    </ul>
+            </div>
+        </div>
+        
+        <!-- File Manager -->
+        <div id="tabstrip-fm" data-role="view" data-title="File Manager" 
+             data-model="app.views.fileManager.viewModel" data-init="app.views.fileManager.init" >
+
+            <div data-role="content" class="content">
+                <div class="input-area ch30">
+                    <input class="inputBox" id="fileNameInput" placeholder="File name"/><br/>
+    			    <input class="inputBox" id="textInput" placeholder="Text"/>
+                </div>
+    			<div class="action-area ch30">
+                    <button class="button" id="writeFileButton">Write</button>
+    				<button class="button" id="readFileButton">Read</button>
+    				<button class="button" id="deleteFileButton">Delete</button>
+    			</div>
+    			<div class="result-area ch40">
+    				<div class="results">
+                        <div id="result" class="desc"></div>
+                    </div>
+                    <div class="separator"></div>
+    			</div>
+            </div>
+
+        </div>
+        
+        <!-- PDF Manager -->
+        <div id="tabstrip-pdf" data-role="view" data-title="PDF Manager" 
+             data-model="app.views.pdfManager.viewModel" data-init="app.views.pdfManager.init" >
+            
+            <div data-role="content" class="view-content">
+
+                 
+                <div class="result-area ch60">
+                    <a  data-role="button" data-click="app.openPDF" >Open PDF</a>
+                    <div class="results">
+                        <div class="desc">Note: For Android you need a PDF reader installed.</div>
+                    </div>
+                    <div id="infoField" type="text" readonly="readonly"></div>
+                    <div class="separator"></div>
+                </div> 
+            </div>        
+         </div>   
+
+        <!-- PayPal Test -->
+        <div id="tabstrip-paypal" data-role="view" data-title="PayPal Plugin" >
+            <div data-role="content" class="view-content">
+                <div style="margin-left:50px">
+                Pagina Test PayPal<br/>
+                
+                <a id="PayPalTest" data-role="button" data-click="app.views.cart.testPayPal">Test Plugin</a> <br/><br/>
+                  
+                </div>
+            </div>  
+        </div>  
+		<!-- Error Views -->
+		<div data-role="modalview" id="error-view" style="display: none; width: 95%; height: 40%;">
+			<div data-role="header">
+				<div data-role="navbar">
+					<span>Error</span>
+					<a data-click="app.closeErrorMessage" data-role="button" data-align="right">Close</a>
+				</div>
+			</div>
+			<div class="message"></div>
+		</div>
+                
+        <!--Layout-->
+        <div data-role="layout" data-id="tabstrip-layout" >
+            <!--Header-->
+            <div data-role="header">
+                <div data-role="navbar">
+                    <span data-role="view-title"></span>
+                </div>
+            </div>
+
+            <!--Footer-->
+            <div data-role="footer">
+                <div data-role="tabstrip">
+                    <a href="#tabstrip-home" data-icon="home">Home</a>
+                    <a href="#tabstrip-cat" data-icon="search">Categorie</a>
+                    <a href="#tabstrip-products-list" data-icon="featured">Prodotti</a>
+                    <a href="#tabstrip-cart" data-icon="cart">Cart
+                        <span class="cart-badge km-badge" style="display:none"></span>
+                    </a>
+                    <a href="#tabstrip-more" data-icon="more">More</a>
+                    
+                </div>
+            </div>
+        </div>
+
+<script>
+
+</script>
+
+    </body>
+</html>
+        
