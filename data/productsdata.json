@@ -1,0 +1,32 @@
+{
+"products":
+        [
+            {
+            "productId": 1,
+            "productTitle": "Prodotto Prova 1",
+            "productDescription": "Descrizione dettagliata Prodotto Prova 1",
+            "productColorsList": [ {"color": "red" }],
+            "productImage": "news.png",
+            "productPrice": 100.50,
+            "productAvailability": "2013-09-16"
+            },
+            {
+            "productId": 2,
+            "productTitle": "Prodotto Prova 2",
+            "productDescription": "Descrizione dettagliata Prodotto Prova 2",
+            "productColorsList": [ {"color": "red" },{"color": "yellow" }],
+            "productImage": "test.png",
+            "productPrice": 102.00,
+            "productAvailability": "2013-09-16"
+            },
+            {
+            "productId": 3,
+            "productTitle": "Prodotto Prova 3",
+            "productDescription": "Descrizione dettagliata Prodotto Prova 3",
+            "productColorsList": [ {"color": "red" },{"color": "yellow" },{"color": "blue" }],
+            "productImage": "tes3.png",
+            "productPrice": 103.50,
+            "productAvailability": "2013-09-30"
+            }
+        ]
+}
