@@ -11,7 +11,7 @@ I create an ecommerce sample app with many features:
  - Login View
  - Location View
 
-I mix different plugins and many sample function, like Login and Location.
+I used different plugins and many sample functions, like Login and Location.
 
 Technical Info
 - Cordova 2.7.0.
